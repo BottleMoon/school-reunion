@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3308/school_reunion
+    url: jdbc:mysql://localhost:3307/school_reunion_auth
     username: admin
     password: admin
 
@@ -25,6 +25,11 @@ spring:
       host: localhost
       port: 6379
 
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
 
   config:
     import:

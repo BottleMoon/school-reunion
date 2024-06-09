@@ -19,6 +19,7 @@ public class Member {
     private Long id;
     private String name;
     private String email;
+    private Boolean isDeleted = false;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "member_role",
@@ -26,4 +27,12 @@ public class Member {
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
     private List<Role> roles;
+
+    public void delete() {
+        this.isDeleted = true;
+    }
+
+    public void undelete() {
+        this.isDeleted = false;
+    }
 }

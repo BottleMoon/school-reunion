@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/school_reunion
+    url: jdbc:mysql://localhost:3307/school_reunion_board
     username: admin
     password: admin
 
@@ -20,8 +20,17 @@ spring:
     init:
       mode: always
 
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+    port: 5672
+
 management:
   endpoints:
     web:
       exposure:
         include: "prometheus"
+
+server:
+  port: 8091

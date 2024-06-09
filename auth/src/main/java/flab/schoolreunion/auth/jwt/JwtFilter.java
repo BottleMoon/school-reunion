@@ -5,8 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,20 +26,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
 
-        String jwt = resolveToken(request);
-
-        TokenValidState tokenValidState = jwtTokenProvider.validateToken(jwt);
-
-        if (tokenValidState == TokenValidState.EXPIRED) {
-            response.getWriter().write("EXPIRED_TOKEN");
-        } else if (tokenValidState == TokenValidState.INVALID) {
-            response.getWriter().write("INVALID_TOKEN");
-        } else if (tokenValidState == TokenValidState.VALIDATED) {
-            Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestURI);
-        }
+        //임시 해제
         filterChain.doFilter(request, response);
+
+//        String jwt = resolveToken(request);
+//
+//        TokenValidState tokenValidState = jwtTokenProvider.validateToken(jwt);
+//
+//        if (tokenValidState == TokenValidState.EXPIRED) {
+//            response.getWriter().write("EXPIRED_TOKEN");
+//        } else if (tokenValidState == TokenValidState.INVALID) {
+//            response.getWriter().write("INVALID_TOKEN");
+//        } else if (tokenValidState == TokenValidState.VALIDATED) {
+//            Authentication authentication = jwtTokenProvider.getAuthentication(jwt);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            log.info("Security Context에 '{}' 인증 정보를 저장했습니다. uri: {}", authentication.getName(), requestURI);
+//        }
+//        filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {

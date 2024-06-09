@@ -28,9 +28,6 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
         List<Board> content = queryFactory.
                 select(board)
                 .from(board)
-                .join(board.member).fetchJoin()
-                .join(board.reunion).fetchJoin()
-                .join(board.reunion.school).fetchJoin()
                 .where(getWhereQuery(condition))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -44,12 +41,12 @@ public class BoardRepositoryCustomImpl implements BoardRepositoryCustom {
     }
 
     private Predicate getWhereQuery(BoardSearchCondition condition) {
-        BooleanExpression query = board.reunion.id.eq(condition.getReunionId());
+        BooleanExpression query = board.reunionId.eq(condition.getReunionId());
         try {
             switch (condition.getTarget()) {
                 case TITLE -> query = query.and(board.title.contains(condition.getKeyword()));
                 case CONTENT -> query = query.and(board.content.contains(condition.getKeyword()));
-                case USERNAME -> query = query.and(board.member.name.contains(condition.getKeyword()));
+                case USERNAME -> query = query.and(board.memberName.contains(condition.getKeyword()));
             }
         } catch (NullPointerException e) {
             return query;

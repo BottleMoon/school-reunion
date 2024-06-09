@@ -1,35 +1,34 @@
 package flab.schoolreunion.board.service;
 
+import com.rabbitmq.client.Channel;
 import flab.schoolreunion.board.dto.board.BoardRequest;
 import flab.schoolreunion.board.dto.board.BoardResponse;
 import flab.schoolreunion.board.dto.board.BoardSearchCondition;
 import flab.schoolreunion.board.dto.board.BoardUpdateRequest;
 import flab.schoolreunion.board.entity.Board;
 import flab.schoolreunion.board.repository.BoardRepository;
-import flab.schoolreunion.board.repository.MemberRepository;
-import flab.schoolreunion.board.repository.ReunionRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class BoardService {
 
     private final BoardRepository boardRepository;
-    private final MemberRepository memberRepository;
-    private final ReunionRepository reunionRepository;
 
-    public BoardService(BoardRepository boardRepository, MemberRepository memberRepository, ReunionRepository reunionRepository) {
+
+    public BoardService(BoardRepository boardRepository) {
         this.boardRepository = boardRepository;
-        this.memberRepository = memberRepository;
-        this.reunionRepository = reunionRepository;
     }
 
-    public Page<BoardResponse> search(BoardSearchCondition condition, Pageable pageable){
+    public Page<BoardResponse> search(BoardSearchCondition condition, Pageable pageable) {
         return boardRepository.search(condition, pageable).map(this::boardToBoardResponse);
     }
 
@@ -58,19 +57,34 @@ public class BoardService {
 
     private Board boardRequestToBoard(BoardRequest dto) {
         return Board.builder()
-                .member(memberRepository.findById(dto.getWriterId()).orElseThrow())
-                .reunion(reunionRepository.findById(dto.getReunionId()).orElseThrow())
+                .reunionId(dto.getReunionId())
+                .memberId(dto.getWriterId())
+                .memberName(dto.getWriterName())
                 .title(dto.getTitle())
                 .content(dto.getContent())
                 .build();
     }
 
-    private BoardResponse boardToBoardResponse(Board board){
+    private BoardResponse boardToBoardResponse(Board board) {
         return new BoardResponse(
-                board.getMember().getName(),
-                board.getMember().getId(),
-                board.getReunion().getId(),
-                board.getId(),board.getTitle(),
+                board.getMemberName(),
+                board.getMemberId(),
+                board.getReunionId(),
+                board.getId(),
+                board.getTitle(),
                 board.getContent());
+    }
+
+    @Transactional
+    @RabbitListener(queues = "board.delete")
+    public String deleteBoardsByMemberId(Long memberId, Channel channel, @Header(AmqpHeaders.DELIVERY_TAG) long tag) {
+        try {
+            boardRepository.deleteAllByMemberId(memberId);
+            log.info("Delete boards by member id: {}", memberId);
+            return "OK";
+        } catch (Exception e) {
+            log.error("Error deleting boards by member id: {}, message: {}", memberId, e.getMessage(), e);
+            return "fail";
+        }
     }
 }

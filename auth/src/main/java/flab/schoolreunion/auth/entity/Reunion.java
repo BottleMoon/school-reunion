@@ -10,7 +10,7 @@ public class Reunion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private School school;
 
     private Integer grade;

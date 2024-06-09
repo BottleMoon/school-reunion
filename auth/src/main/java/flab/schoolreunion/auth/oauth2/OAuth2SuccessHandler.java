@@ -59,7 +59,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         cookie.setPath("/");
 
         response.addCookie(cookie);
-
         //TODO: response
+        response.sendRedirect("/");
     }
 }
