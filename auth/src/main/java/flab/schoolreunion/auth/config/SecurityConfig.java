@@ -53,6 +53,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry.requestMatchers("/auth/**").permitAll()
+                                .requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated())
 
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer ->

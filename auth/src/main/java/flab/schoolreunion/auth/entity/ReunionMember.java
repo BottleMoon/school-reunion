@@ -1,4 +1,4 @@
-package flab.schoolreunion.auth.entity;
+package flab.schoolreunion.board.entity;
 
 import jakarta.persistence.*;
 
@@ -14,4 +14,3 @@ public class SchoolMember {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 }
-
